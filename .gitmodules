@@ -1,3 +1,6 @@
 [submodule "DCS-RESTful-Docker-Kubernetes"]
 	path = DCS-RESTful-Docker-Kubernetes
 	url = git@github.com:Toine0612/DCS-RESTful-Docker-Kubernetes.git
+[submodule "2.fastapi-gitops"]
+	path = 2.fastapi-gitops
+	url = git@github.com:Toine0612/2.fastapi-gitops.git
