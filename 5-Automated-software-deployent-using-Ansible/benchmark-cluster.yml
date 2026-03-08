@@ -1,0 +1,135 @@
+---
+- name: Benchmark Docker Swarm whoami service
+  hosts: localhost
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Update Debian
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+
+    - name: Update RedHat
+      ansible.builtin.dnf:
+        update_cache: true
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install wrk benchmarking tool
+      ansible.builtin.package:
+        name:
+          - wrk
+        state: present
+
+- name: Deploy whoami service on Docker Swarm
+  hosts: master
+  tasks:
+
+    - name: Remove whoami service
+      ansible.legacy.command:
+        cmd: "docker service rm whoami"
+      become: true
+      register: rm_output
+      failed_when: false
+      changed_when: rm_output.rc == 0
+
+    - name: Create whoami service
+      ansible.legacy.command:
+        cmd: "docker service create --name whoami --publish published=8080,target=80 --replicas 1 containous/whoami"
+      become: true
+      register: create_output
+      changed_when: create_output.rc == 0
+
+- name: Benchmark whoami service
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    - name: Run wrk benchmark against whoami service
+      ansible.legacy.command:
+        cmd: "wrk -t4 -c5 -d30s http://{{ groups['master'][0] }}:8080"
+      register: wrk_output
+      changed_when: false
+
+    - name: Display wrk benchmark results
+      ansible.builtin.debug:
+        msg: '{{ wrk_output.stdout_lines | select("search", "Req/Sec") }}'
+
+- name: Deploy whoami service on Docker Swarm
+  hosts: master
+  tasks:
+
+    - name: Remove whoami service
+      ansible.legacy.command:
+        cmd: "docker service rm whoami"
+      become: true
+      failed_when: false
+
+    - name: Create whoami service with 2 replicas
+      ansible.legacy.command:
+        cmd: "docker service create --name whoami --publish published=8080,target=80 --replicas 2 containous/whoami"
+      become: true
+
+- name: Benchmark whoami service
+  hosts: localhost
+  tasks:
+    - name: Run wrk benchmark
+      ansible.legacy.command:
+        cmd: "wrk -t4 -c5 -d30s http://{{ groups['master'][0] }}:8080"
+      register: wrk_output
+
+    - name: Display benchmark results
+      ansible.builtin.debug:
+        msg: '{{ wrk_output.stdout_lines | select("search", "Req/Sec") }}'
+
+- name: Deploy whoami service on Docker Swarm
+  hosts: master
+  tasks:
+
+    - name: Remove whoami service
+      ansible.legacy.command:
+        cmd: "docker service rm whoami"
+      become: true
+      failed_when: false
+
+    - name: Create whoami service with 4 replicas
+      ansible.legacy.command:
+        cmd: "docker service create --name whoami --publish published=8080,target=80 --replicas 4 containous/whoami"
+      become: true
+
+- name: Benchmark whoami service
+  hosts: localhost
+  tasks:
+    - name: Run wrk benchmark
+      ansible.legacy.command:
+        cmd: "wrk -t4 -c5 -d30s http://{{ groups['master'][0] }}:8080"
+      register: wrk_output
+
+    - name: Display benchmark results
+      ansible.builtin.debug:
+        msg: '{{ wrk_output.stdout_lines | select("search", "Req/Sec") }}'
+
+- name: Deploy whoami service on Docker Swarm
+  hosts: master
+  tasks:
+
+    - name: Remove whoami service
+      ansible.legacy.command:
+        cmd: "docker service rm whoami"
+      become: true
+      failed_when: false
+
+    - name: Create whoami service with 8 replicas
+      ansible.legacy.command:
+        cmd: "docker service create --name whoami --publish published=8080,target=80 --replicas 8 containous/whoami"
+      become: true
+
+- name: Benchmark whoami service
+  hosts: localhost
+  tasks:
+    - name: Run wrk benchmark
+      ansible.legacy.command:
+        cmd: "wrk -t4 -c5 -d30s http://{{ groups['master'][0] }}:8080"
+      register: wrk_output
+
+    - name: Display benchmark results
+      ansible.builtin.debug:
+        msg: '{{ wrk_output.stdout_lines | select("search", "Req/Sec") }}'

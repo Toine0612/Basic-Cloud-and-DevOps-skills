@@ -1,0 +1,3 @@
+[submodule "DCS-RESTful-Docker-Kubernetes"]
+	path = DCS-RESTful-Docker-Kubernetes
+	url = git@github.com:Toine0612/DCS-RESTful-Docker-Kubernetes.git

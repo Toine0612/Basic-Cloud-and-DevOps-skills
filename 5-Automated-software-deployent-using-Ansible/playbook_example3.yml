@@ -1,0 +1,20 @@
+---
+- name: Example3
+  hosts: web-server1
+  tasks:
+    - name: Generate secret password
+      ansible.builtin.command: "openssl rand -base64 12"
+      register: command_output
+      changed_when: command_output.rc == 0
+
+
+    - name: Print command output
+      ansible.builtin.debug:
+        msg: "Secret password is {{ command_output.stdout }}"
+
+- name: Example3-2
+  hosts: web-server2
+  tasks:
+    - name: Print password
+      ansible.builtin.debug:
+        msg: "Secret password is {{ command_output.stdout }}"
